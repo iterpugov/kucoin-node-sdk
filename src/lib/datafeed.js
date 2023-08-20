@@ -53,6 +53,7 @@ class Datafeed {
     this.ping = 0;
 
     this.logger = logger || {
+      //  debug: () => loop,
        log: () => loop,
        error: () => loop,
     };
@@ -134,7 +135,7 @@ class Datafeed {
 
     cl.onmessage = (evt) => {
       if (!evt.data) {
-        this.logger.log('invalid message');
+        this.logger.error('invalid message');
         return;
       }
       let message = null;
@@ -142,7 +143,7 @@ class Datafeed {
         this.logger.log('parse: ', evt.data, this._maxId, cl._maxId);
         message = JSON.parse(evt.data);
       } catch (e) {
-        this.logger.log('parse message error');
+        this.logger.error('parse message error');
         console.error(e);
       }
       if (!message) {
@@ -164,13 +165,13 @@ class Datafeed {
           break;
         case 'ping':
         default:
-          this.logger.log('unhandle message', evt.data);
+          this.logger.error('unhandle message', evt.data);
           break;
       }
     };
 
     cl.onerror = (e) => {
-      this.logger.log('socket connect onerror', this._maxId, cl._maxId, e.message);
+      this.logger.error('socket connect onerror', this._maxId, cl._maxId, e.message);
     }
 
     cl.onclose = () => {
@@ -341,7 +342,7 @@ class Datafeed {
             '/api/v1/bullet-public'
       );
     } catch (e) {
-      this.logger.log('get bullet error', e);
+      this.logger.error('get bullet error', e);
     }
     return res;
   }
@@ -401,7 +402,7 @@ class Datafeed {
 
     this._pingTs = setInterval(() => {
       if (!this.trustConnected) {
-        this.logger.error('client not connected');
+        this.logger.log('client not connected');
         return;
       }
       const id = generateId();
