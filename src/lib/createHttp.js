@@ -89,18 +89,22 @@ class HttpBase {
       body: ctx.body,
       method,
       headers: ctx.headers,
-    }).then(res => {
+    })
+    .then(async res => {
+      await this.afterMiddleware.run({
+        request: ctx,
+        response: res
+      });
+      return res;
+    })
+    .then(res => {
       if(res.json && typeof res.json === 'function'){
         return res.json();
       }else {
         return res;
       }
     })
-    .then(async res => {
-      await this.afterMiddleware.run(res);
-      return res;
-    });
-
+    
     return result;
   }
 }
